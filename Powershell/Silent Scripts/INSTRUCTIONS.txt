@@ -1,0 +1,24 @@
+Below is a **template** for both the PowerShell script and the VBScript that can be used to create future PowerShell-VBScript combinations. This template does not perform any actual actions but maintains the structure needed to run scripts silently without output.
+
+### How to Use This Template:
+1. **PowerShell Script**:
+   - Replace the placeholder comment blocks (`# Your future script logic goes here`) with your actual PowerShell commands.
+   - Make sure to suppress any output by assigning results to `$null` whenever necessary, as shown in the example.
+
+2. **VBScript**:
+   - The VBScript is designed to run any PowerShell script silently from the same directory.
+   - Replace the `Template-Script.ps1` in `scriptPath` with the actual PowerShell script file you want to execute.
+
+### Key Features:
+- **Silent Execution**: Both the PowerShell and VBScript are designed to run without showing any windows or logging output.
+- **No Logging**: The PowerShell script is structured so that no output is logged or displayed.
+- **Reusable**: This template can be reused for any PowerShell script that you want to run silently with VBScript.
+
+### Example of Usage:
+If you wanted to create a new script that changes a system setting or performs some administrative task, you would modify the `Template-Script.ps1` and `Template-RunPowerShellSilently.vbs` as follows:
+
+- Rename `Template-Script.ps1` to something more descriptive, such as `Configure-SecurityPolicy.ps1`.
+- Update the PowerShell script with the appropriate logic that you want to execute.
+- Rename `Template-RunPowerShellSilently.vbs` to `Run-ConfigureSecurityPolicy.vbs` and ensure it points to the new `.ps1` file.
+
+This template provides a clean, reusable structure for creating silent PowerShell + VBScript combinations in the future.
