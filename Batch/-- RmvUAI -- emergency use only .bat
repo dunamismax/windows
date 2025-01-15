@@ -21,7 +21,7 @@ taskkill /im "Maven64.exe" /f
 taskkill /im "OPALStudyList.exe" /f 
 taskkill /im "OpalAdmin.exe" /f 
 taskkill /IM OpalUAI64.exe /F 
-taskkill /IM OpalUAI32.exe /F 
+taskkill /IM OpalUAi3-gaps2.exe /F 
 taskkill /IM relix32.exe /F 
 
 cd C:\opal\bin 
@@ -81,8 +81,8 @@ del ocv_imgproc249_32.dll
 del ocv_imgproc249_64.dll 
 del OpalUAI.dll 
 del OpalUAI.exe 
-del OpalUAI32.exe 
-del OpalUAI32Interface.dll 
+del OpalUAi3-gaps2.exe 
+del OpalUAi3-gaps2Interface.dll 
 del OpalUAI64.exe 
 del OpalUAIStandalone.exe 
 del opencv_core243.dll 
@@ -116,7 +116,7 @@ del Intel.RealSense.dll
 rd zh-CHS /s /q 
 del WinSCP.exe 
 del OpalUAI64.exe.config 
-del OpalUAI32.exe.config 
+del OpalUAi3-gaps2.exe.config 
 del PreRegistration.cie 
 del PreFusion.cie 
 del avcodec-58.dll 
