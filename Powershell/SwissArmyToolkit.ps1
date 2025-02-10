@@ -13,9 +13,14 @@
         extracts it to C:\python, adds it to the user PATH, and validates the installation.
       • “q” to quit and “m” to return to the main menu available on every page.
 
-    Author: Your Name
+    Author: dunamismax
     Date: 2025-02-10
+
+    Note - run the below in an elevated powershell before running this script:
+    Set-ExecutionPolicy Unrestricted -Force
+
 #>
+
 
 #region Global Variables & Logging
 
