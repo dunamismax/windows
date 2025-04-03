@@ -3,7 +3,7 @@ $ErrorActionPreference= 'silentlycontinue'
 
 # --- Configuration ---
 # Assign a password to the password variable
-$rustdesk_pw=(2020Techs!@)
+$rustdesk_pw = '2020Techs!@'
 
 # !!! IMPORTANT: Replace "configstring" with your actual RustDesk configuration string !!!
 $rustdesk_cfg="configstring"
@@ -223,7 +223,7 @@ if ($rustdesk_id) {
     Write-Output "RustDesk ID: Failed to retrieve."
 }
 # Show the value of the Password Variable
-Write-Output "Generated Password: $rustdesk_pw"
+Write-Output "Password: $rustdesk_pw"
 Write-Output "..............................................."
 Write-Output "Script completed."
 Exit 0 # Explicitly exit with success code
