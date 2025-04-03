@@ -12,77 +12,27 @@ $rustdesk_cfg="configstring"
 # Define the service name
 $ServiceName = 'Rustdesk'
 
-# --- Script Body ---
-
-# This function will return the latest version and download link as an object
-function Get-LatestRustDeskInfo {
-    # Use TLS 1.2 or higher for GitHub connections
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12, [Net.SecurityProtocolType]::Tls13
-
-    Write-Output "Fetching latest RustDesk release information from GitHub..."
-    try {
-        $Page = Invoke-WebRequest -Uri 'https://github.com/rustdesk/rustdesk/releases/latest' -UseBasicParsing -ErrorAction Stop
-    } catch {
-        Write-Output "ERROR: Failed to retrieve latest release page from GitHub. $($_.Exception.Message)"
-        Exit 1 # Exit with a non-zero code to indicate failure
-    }
-
-    $HTML = New-Object -Com "HTMLFile"
-    try {
-        # Attempt standard write method
-        $HTML.IHTMLDocument2_write($Page.Content)
-    } catch {
-        # Fallback for potential encoding issues
-        $src = [System.Text.Encoding]::UTF8.GetBytes($Page.Content) # Use UTF8 encoding
-        $HTML.write($src)
-    }
-
-    # Regex to find the 64-bit Windows EXE download link
-    $Downloadlink = ($HTML.Links | Where-Object {$_.href -match '/rustdesk/rustdesk/releases/download/[\d.]+(?:-\d+)?/rustdesk-[\d.]+(?:-\d+)?-x86_64\.exe$'} | Select-Object -ExpandProperty href -First 1)
-
-    # Ensure the link is absolute
-    if ($Downloadlink -like '/*') {
-        $Downloadlink = "https://github.com$Downloadlink"
-    } elseif ($Downloadlink -like 'about:*') {
-         $Downloadlink = $Downloadlink.Replace('about:', 'https://github.com')
-    }
-
-    $Version = "unknown"
-    if ($Downloadlink -match '/releases/download/(?<version>[\d.]+(?:-\d+)?)/') {
-        $Version = $matches['version']
-    }
-
-    if ($Version -eq "unknown" -or -not $Downloadlink) {
-        Write-Output "ERROR: Could not parse version or download link from the GitHub release page."
-        Exit 1 # Exit with a non-zero code to indicate failure
-    }
-
-    Write-Output "Latest Version Found: $Version"
-    Write-Output "Download Link: $Downloadlink"
-
-    # Create object to return
-    return [PSCustomObject]@{
-        Version      = $Version
-        Downloadlink = $Downloadlink
-    }
-}
+# --- Static Download Information ---
+$TargetVersion = "1.3.9" # Manually specify the version corresponding to the link
+$Downloadlink = "https://github.com/rustdesk/rustdesk/releases/download/1.3.9/rustdesk-1.3.9-x86_64.exe"
+Write-Output "Target RustDesk Version: $TargetVersion"
+Write-Output "Using Static Download Link: $Downloadlink"
 
 # --- Main Script Logic ---
 
-# Get latest version info
-$RustDeskOnGitHub = Get-LatestRustDeskInfo
-# Exit if function failed (indicated by exiting within the function)
+# Use TLS 1.2 or higher for web requests
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12, [Net.SecurityProtocolType]::Tls13
 
 # Check currently installed version (handle case where RustDesk is not installed)
 $rdver = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RustDesk" -ErrorAction SilentlyContinue).Version
 
-if ($rdver -eq $RustDeskOnGitHub.Version) {
-    Write-Output "RustDesk version $rdver is already the latest version. No action needed."
+if ($rdver -eq $TargetVersion) {
+    Write-Output "RustDesk version $rdver is already the target version ($TargetVersion). No action needed."
     Exit 0 # Exit successfully
 } elseif ($rdver) {
-    Write-Output "Found installed version $rdver. Upgrading to $($RustDeskOnGitHub.Version)..."
+    Write-Output "Found installed version $rdver. Upgrading to target version $TargetVersion..."
 } else {
-    Write-Output "RustDesk not found. Installing version $($RustDeskOnGitHub.Version)..."
+    Write-Output "RustDesk not found. Installing target version $TargetVersion..."
 }
 
 # Ensure Temp directory exists
@@ -93,9 +43,9 @@ if (!(Test-Path $TempPath)) {
 $InstallerPath = Join-Path $TempPath "rustdesk.exe"
 
 # Download the installer
-Write-Output "Downloading $($RustDeskOnGitHub.Downloadlink) to $InstallerPath..."
+Write-Output "Downloading $Downloadlink to $InstallerPath..."
 try {
-    Invoke-WebRequest $RustDeskOnGitHub.Downloadlink -Outfile $InstallerPath -UseBasicParsing -ErrorAction Stop
+    Invoke-WebRequest $Downloadlink -Outfile $InstallerPath -UseBasicParsing -ErrorAction Stop
     Write-Output "Download complete."
 } catch {
     Write-Output "ERROR: Failed to download RustDesk installer. $($_.Exception.Message)"
@@ -155,7 +105,6 @@ Write-Output "Ensuring RustDesk service is running..."
 $attempts = 0
 while ($arrService.Status -ne 'Running' -and $attempts -lt 5) {
     $attempts++
-    # *** THIS IS THE CORRECTED LINE ***
     Write-Output "Attempt ${attempts}: Starting service '$ServiceName'..."
     Start-Service $ServiceName -ErrorAction SilentlyContinue
     Start-Sleep -seconds 5
@@ -174,8 +123,7 @@ if ($arrService.Status -ne 'Running') {
 Write-Output "Retrieving RustDesk ID..."
 $rustdesk_id_output = ""
 try {
-    # Execute and capture standard output. Use Start-Process for better control if needed,
-    # but direct execution is often simpler if no window flash occurs here.
+    # Execute and capture standard output.
     $rustdesk_id_output = (& "$RustDeskExe" --get-id)
     if ($LASTEXITCODE -ne 0) {
          Write-Output "WARNING: --get-id command exited with code $LASTEXITCODE."
@@ -223,7 +171,7 @@ if ($rustdesk_id) {
     Write-Output "RustDesk ID: Failed to retrieve."
 }
 # Show the value of the Password Variable
-Write-Output "Password: $rustdesk_pw"
+Write-Output "Configured Password: $rustdesk_pw" # Use the specific password value
 Write-Output "..............................................."
 Write-Output "Script completed."
 Exit 0 # Explicitly exit with success code
